@@ -1,0 +1,160 @@
+body, html {
+
+    margin: 0;
+
+    padding: 0;
+
+    width: 100%;
+
+    height: 100%;
+
+    overflow: hidden;
+
+    background-color: #050a0f;
+
+}
+
+#pond {
+
+    width: 100vw;
+
+    height: 100vh;
+
+    background: radial-gradient(circle at center, #0a1f2d 0%, #05141c 70%, #02080c 100%);
+
+    position: relative;
+
+    cursor: crosshair;
+
+}
+
+/* 魚的基礎外觀 */
+
+.fish {
+
+    position: absolute;
+
+    will-change: transform, opacity;
+
+    filter: blur(0.5px);
+
+    transition: transform 0.2s linear, opacity 2s ease-in; /* 長時間淡入 */
+
+    opacity: 0; 
+
+}
+
+/* 讓快速魚看起來稍微模糊，模擬深水動態 */
+
+.fish.fast-guest {
+
+    filter: blur(1.5px) brightness(0.8);
+
+}
+
+/* 淡入後的狀態 */
+
+.fish.visible {
+
+    opacity: 0.7;
+
+}
+
+.fish.fast-guest.visible {
+
+    opacity: 0.35; /* 快速魚更透明，像影子 */
+
+}
+
+/* 尾巴擺動：預設為療癒慢速 */
+
+.tail {
+
+    transform-origin: 22px 30px;
+
+    animation: tail-wag 0.8s infinite alternate ease-in-out;
+
+}
+
+@keyframes tail-wag {
+
+    from { transform: rotate(-12deg); }
+
+    to { transform: rotate(12deg); }
+
+}
+
+/* 水波紋 */
+
+.ripple {
+
+    position: absolute;
+
+    border: 1px solid rgba(100, 200, 255, 0.15);
+
+    border-radius: 50%;
+
+    transform: translate(-50%, -50%);
+
+    pointer-events: none;
+
+    animation: ripple-effect 2s ease-out forwards;
+
+}
+
+@keyframes ripple-effect {
+
+    0% { width: 0; height: 0; opacity: 0.5; }
+
+    100% { width: 400px; height: 400px; opacity: 0; }
+
+}
+
+/* 飼料顆粒 */
+
+.pellet {
+
+    position: absolute;
+
+    width: 3px;
+
+    height: 3px;
+
+    background-color: rgba(200, 180, 150, 0.4);
+
+    border-radius: 50%;
+
+    pointer-events: none;
+
+    animation: sink-and-fade 3.5s ease-out forwards;
+
+}
+
+@keyframes sink-and-fade {
+
+    0% { transform: translate(-50%, -50%) scale(1); opacity: 0.6; }
+
+    100% { transform: translate(-50%, 50px) scale(0.3); opacity: 0; }
+
+}
+
+.ui-hint {
+
+    position: absolute;
+
+    bottom: 30px;
+
+    width: 100%;
+
+    text-align: center;
+
+    color: rgba(255, 255, 255, 0.08);
+
+    letter-spacing: 4px;
+
+    pointer-events: none;
+
+    font-size: 13px;
+
+}
+
