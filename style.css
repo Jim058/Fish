@@ -62,7 +62,12 @@ body, html {
     height: 100%;
     width: 100%; /* 初始滿格 */
     background: rgba(100, 200, 255, 0.4);
-    transition: width 0.3s ease, background 0.5s ease;
+    transition: width 0.3s ease, background-color 0.5s ease;
+}
+
+/* 當飼料低於 20% 時，我們可以透過 JS 動態加上一個 class */
+.bar-empty {
+    background-color: rgba(255, 100, 100, 0.6) !important; /* 變為淡紅色 */
 }
 
 /* 飼料格的顏色 */
