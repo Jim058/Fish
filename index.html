@@ -7,14 +7,28 @@
     <title>水族箱</title>
 </head>
 <body>
-    <audio id="bgMusic" autoplay loop muted>
-
-        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
-    
+    <audio id="bgMusic" loop preload="auto">
+        <source src="https://assets.mixkit.co/music/292/292.mp3" type="audio/mpeg">
     </audio>
     
     <div id="pond">
-        <div class="ui-hint">點擊深處投餵</div>
+
+        <div class="stats-container">
+            <div class="stat-item">
+                <span class="label">FOOD</span>
+                <div class="bar-bg"><div id="food-bar" class="bar-fill"></div></div>
+            </div>
+            <div class="stat-item">
+                <span class="label">LOVE</span>
+                <div class="bar-bg"><div id="love-bar" class="bar-fill"></div></div>
+            </div>
+        </div>
+        
+        <div class="ui-hint">
+            <h2>點擊深處投餵</h2>
+                <h4>music form:https://assets.mixkit.co/music/292/292.mp3</h4>
+            </div>
+        
     </div>
         
     

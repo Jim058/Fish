@@ -244,6 +244,216 @@
 
      */
 
+
+    (function() {
+        const audio = document.getElementById('bgMusic');
+        
+        // 設定初始音量
+        if (audio) {
+            audio.volume = 0.3; 
+        }
+    
+        const startMusic = () => {
+            if (audio && audio.paused) {
+                // 嘗試播放
+                audio.play().then(() => {
+                    console.log("音樂成功解鎖並播放");
+                    // 播放成功後，移除所有監聽器，避免重複執行
+                    window.removeEventListener('mousedown', startMusic);
+                    window.removeEventListener('touchstart', startMusic);
+                    window.removeEventListener('keydown', startMusic);
+                }).catch(err => {
+                    console.log("等待點擊以啟動音訊...");
+                });
+            }
+        };
+    
+        // 監聽所有可能的互動動作
+        window.addEventListener('mousedown', startMusic);
+        window.addEventListener('touchstart', startMusic); // 支援手機點擊
+        window.addEventListener('keydown', startMusic);    // 支援按鍵
+    })();
+
+    (function() {
+        "use strict";
+    
+        const container = document.getElementById('pond');
+        const foodBar = document.getElementById('food-bar');
+        const loveBar = document.getElementById('love-bar');
+        if (!container) return;
+    
+        const state = {
+            fishes: [],
+            food: null,
+            foodTimeout: null,
+            width: window.innerWidth,
+            height: window.innerHeight,
+            // --- 新增狀態 ---
+            foodStock: 100,   // 飼料剩餘量 (0-100)
+            happiness: 50     // 愛心度/飢餓度 (0-100)
+        };
+    
+        // 每一秒鐘，魚會變餓 (愛心度下降)
+        setInterval(() => {
+            state.happiness = Math.max(0, state.happiness - 0.5);
+            updateUI();
+        }, 1000);
+    
+        // 每一秒鐘，飼料會緩慢自動回補
+        setInterval(() => {
+            state.foodStock = Math.min(100, state.foodStock + 1);
+            updateUI();
+        }, 2000);
+    
+        function updateUI() {
+            if (foodBar) foodBar.style.width = `${state.foodStock}%`;
+            if (loveBar) loveBar.style.width = `${state.happiness}%`;
+            
+            // 如果愛心太低，顏色變淡
+            loveBar.style.opacity = state.happiness < 20 ? "0.2" : "0.6";
+        }
+    
+        class FishEntity {
+            constructor(isFast = false, customConfig = {}) {
+                this.isFast = isFast;
+                this.size = customConfig.size || (0.8 + Math.random() * 0.5);
+                this.color = customConfig.color || '#2c3e50';
+                this.x = Math.random() * state.width;
+                this.y = Math.random() * state.height;
+                this.angle = Math.random() * Math.PI * 2;
+                this.velocity = isFast ? 3.2 : 0.6 + (1.2 - this.size) * 0.8;
+                this.oscillation = 0;
+                this.dom = this.createDOM();
+                this.render(true);
+            }
+    
+            createDOM() {
+                const el = document.createElement('div');
+                el.className = `fish ${this.isFast ? 'fast-guest' : ''}`;
+                el.style.width = `${60 * this.size}px`;
+                el.style.opacity = '0';
+                const tailSpeed = this.isFast ? '0.3s' : '0.8s';
+                el.innerHTML = `
+                    <svg viewBox="0 0 100 60" style="display:block; width:100%;">
+                        <path d="M20,30 Q50,5 90,30 Q50,55 20,30" fill="${this.color}" fill-opacity="0.8" />
+                        <path class="tail" d="M22,30 L0,15 L0,45 Z" fill="${this.color}" fill-opacity="0.4" 
+                              style="animation: tail-wag ${tailSpeed} infinite alternate ease-in-out;" />
+                    </svg>`;
+                container.appendChild(el);
+                requestAnimationFrame(() => el.style.opacity = this.isFast ? '0.3' : '0.7');
+                return el;
+            }
+    
+            update() {
+                // 當有食物且魚靠近食物時，增加愛心度
+                if (!this.isFast && state.food) {
+                    const dx = state.food.x - this.x;
+                    const dy = state.food.y - this.y;
+                    const dist = Math.sqrt(dx*dx + dy*dy);
+                    
+                    if (dist < 30) { // 魚吃到飼料了
+                        state.happiness = Math.min(100, state.happiness + 0.2);
+                        updateUI();
+                    }
+    
+                    // 尋找食物邏輯
+                    const targetAngle = Math.atan2(dy, dx);
+                    let angleDiff = targetAngle - this.angle;
+                    while (angleDiff < -Math.PI) angleDiff += Math.PI * 2;
+                    while (angleDiff > Math.PI) angleDiff -= Math.PI * 2;
+                    this.angle += angleDiff * 0.035;
+                    this.velocity = this.velocity * 0.98 + 2.4 * 0.02;
+                } else {
+                    // 閒逛邏輯
+                    this.angle += (Math.random() - 0.5) * (this.isFast ? 0.05 : 0.025);
+                    this.velocity = this.velocity * 0.99 + (this.isFast ? 3.2 : 0.7) * 0.01;
+                }
+    
+                this.x += Math.cos(this.angle) * this.velocity;
+                this.y += Math.sin(this.angle) * this.velocity;
+    
+                // 邊界處理
+                const margin = 100;
+                if (this.x < -margin) this.x = state.width + margin;
+                else if (this.x > state.width + margin) this.x = -margin;
+                if (this.y < -margin) this.y = state.height + margin;
+                else if (this.y > state.height + margin) this.y = -margin;
+    
+                this.render();
+            }
+    
+            render(immediate = false) {
+                this.dom.style.transform = `translate(${this.x}px, ${this.y}px) rotate(${this.angle}rad)`;
+            }
+        }
+    
+        function init() {
+            const configs = [{size:1.1, color:'#1a3c40'}, {size:0.9, color:'#2c3e50'}, {size:1.2, color:'#2a4d53'}, {size:0.8, color:'#334756'}, {size:0.7, color:'#455a64'}];
+            configs.forEach(cfg => state.fishes.push(new FishEntity(false, cfg)));
+            state.fishes.push(new FishEntity(true, { size: 1.3, color: '#4f6d7a' }));
+    
+            container.addEventListener('mousedown', (e) => {
+                // 檢查是否還有飼料
+                if (state.foodStock <= 0) return;
+    
+                // 每次點擊消耗飼料
+                state.foodStock = Math.max(0, state.foodStock - 5);
+                updateUI();
+    
+                const x = e.clientX;
+                const y = e.clientY;
+    
+                // 水波與顆粒動畫 (略，保持原本邏輯)
+                createRipple(x, y);
+                createPellets(x, y);
+    
+                state.food = { x, y };
+                clearTimeout(state.foodTimeout);
+                state.foodTimeout = setTimeout(() => { state.food = null; }, 3000);
+                
+                // 背景音樂啟動 (保持原本邏輯)
+                handleMusic();
+            });
+    
+            function loop() {
+                state.fishes.forEach(f => f.update());
+                requestAnimationFrame(loop);
+            }
+            loop();
+        }
+    
+        // 輔助函式 (漣漪、飼料、音樂)
+        function createRipple(x, y) {
+            const r = document.createElement('div');
+            r.className = 'ripple';
+            r.style.left = `${x}px`; r.style.top = `${y}px`;
+            container.appendChild(r);
+            r.addEventListener('animationend', () => r.remove());
+        }
+    
+        function createPellets(x, y) {
+            for (let i = 0; i < 5; i++) {
+                const p = document.createElement('div');
+                p.className = 'pellet';
+                p.style.left = `${x + (Math.random()-0.5)*40}px`;
+                p.style.top = `${y + (Math.random()-0.5)*40}px`;
+                container.appendChild(p);
+                p.addEventListener('animationend', () => p.remove());
+            }
+        }
+    
+        function handleMusic() {
+            const audio = document.getElementById('bgMusic');
+            if (audio && audio.paused) {
+                audio.muted = false;
+                audio.play().catch(()=>{});
+            }
+        }
+    
+        window.addEventListener('load', init);
+    })();
+
+
     function init() {
 
         // 初始化一般魚群
@@ -353,6 +563,8 @@
         window.addEventListener('load', init);
 
     }
+
+
 
 })();
 

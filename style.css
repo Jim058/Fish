@@ -28,6 +28,50 @@ body, html {
 
 }
 
+/* UI 容器放在左上角 */
+.stats-container {
+    position: absolute;
+    top: 60px;
+    left: 20px;
+    z-index: 100;
+    pointer-events: none; /* 不干擾點擊水面 */
+}
+
+.stat-item {
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+}
+
+.label {
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 10px;
+    letter-spacing: 2px;
+    width: 50px;
+}
+
+.bar-bg {
+    width: 120px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.bar-fill {
+    height: 100%;
+    width: 100%; /* 初始滿格 */
+    background: rgba(100, 200, 255, 0.4);
+    transition: width 0.3s ease, background 0.5s ease;
+}
+
+/* 飼料格的顏色 */
+#food-bar { background: rgba(200, 180, 150, 0.5); }
+/* 愛心格的顏色（粉藍色調較符合寧靜感） */
+#love-bar { background: rgba(150, 200, 200, 0.5); }
+
+
+
 /* 魚的基礎外觀 */
 
 .fish {
